@@ -156,4 +156,33 @@ def runTD(self, currentState):
     Q = 0
     Q += 0.1 * (reward(self, currentState) + 0.9 * runTD(getNextState) - Q)
     return Q
+ ##
+    #categorizeState
+    #
+    #Description: Put states that identical into the same category.
+    #
+    #Parameters:
+    #   currentState - the state of the game at this point in time.
+    #    myInv - inventory of the current player
+    #
+    #Return: A tuple of states
+    ##
+def categorizeState(self, currentState, myInv):
+    listState = []
+    workers = getAntList(currentState, currentState.whoseTurn, (WORKER,))
+    soldier = getAntList(currentState, currentState.whoseTurn, (SOLDIER,))
+    queen = getAntList(currentState, currentState.whoseTurn, (QUEEN,))
+    enemyQueen = getAntList(currentState, currentState.whoseTurn, (QUEEN,))
+    drone = getAntList(currentState, currentState.whoseTurn, (DRONE,))
+    
+    #put states into a list
+    listState.append(workers)
+    listState.append(soldier)
+    listState.append(queen)
+    listState.append(enemyQueen)
+    listState.append(drone)
+
+    return listState
+
+
 
