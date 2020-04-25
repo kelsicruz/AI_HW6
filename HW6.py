@@ -30,11 +30,13 @@ class AIPlayer(Player):
     ##
     def __init__(self, inputPlayerId):
         super(AIPlayer,self).__init__(inputPlayerId, "HW6")
-        self.stateUtilities = []
+        self.stateList = []
+        self.lastState = None
         self.reward = 0
-        self.outFileLocation = "../weights_hw6.txt"
-        self.outFile = open(self.outFileLocation, "w+")
-        sys.stdout = self.outFile  # redirect stdout
+        self.alpha = 0.1 # learning rate
+        self.gamma = 0.9 # discount rate
+        self.outFile = "cruzk20_ndagijim22_weights.txt"
+        self.states = self.loadStates('../' + self.outFile)
     
     ##
     #getPlacement
@@ -129,60 +131,67 @@ class AIPlayer(Player):
     # This agent doens't learn
     #
     def registerWin(self, hasWon):
-        reward(self, hasWon)
+        if (hasWon):
+            self.reward = 1
+        self.getTD(self.previousStates, reward)
+        self.saveState(self.outFile)
+
+    def saveState(self, path):
+        f = open(path, "w")
+        f.write("".join("{}: {}, ".format(k, v) for k, v in self.stateList.items()))
+        f.close()
+
+    def loadFile(self, path):
+        f = open(path, "r")
+        self.stateList = {}
+        dictionary = f.read()
+        for entry in dictionary.split(', ')[0:-1]:
+            pair = entry.split(': ')
+            state = pair[0]
+            weight = pair[1]
+            self.states[state] = float(weight)
+        f.close()
         
-def loadfile():
-    return
 
-def reward(self, currentState):
-    me = self.currentState.whoseTurn
-    if (me == PLAYER_ONE):
-        enemy = PLAYER_TWO
-    else :
-        enemy = PLAYER_ONE
-
-    # Note: Unsure if this is fully working, need to check if player objects have this property
-    if (me.hasWon):
+def runTD(self, nextState, hasWon):
+    if (hasWon):
         self.reward += 1
-    if (enemy.haswon):
-        self.reward -= 1
     else:
         self.reward -= 0.01
 
-def runTD(self, currentState):
-    # Discount factor = 0.9
-    # Learning rate = 0.1
-    # Note: Using Q-Learning, can easily be changed
-    Q = 0
-    Q += 0.1 * (reward(self, currentState) + 0.9 * runTD(getNextState) - Q)
-    return Q
- ##
-    #categorizeState
-    #
-    #Description: Put states that identical into the same category.
-    #
-    #Parameters:
-    #   currentState - the state of the game at this point in time.
-    #    myInv - inventory of the current player
-    #
-    #Return: A tuple of states
-    ##
+    # TODO: Fix category and nextStateUtility
+    category = None
+    utility = self.stateList.setdefault(category, 0)
+    nextStateUtility = self.states.setdefault(None, 0)
+
+    td = utility + self.alpha * (self.reward+(self.gamma * (nextStateUtility - utility)))
+
+    self.stateList[category] = td
+
+     ##
+     #categorizeState
+     #
+     #Description: Put states that identical into the same category.
+     #
+     #Parameters:
+     #   currentState - the state of the game at this point in time.
+     #    myInv - inventory of the current player
+     #
+     #Return: A tuple of states
+     ##
 def categorizeState(self, currentState, myInv):
-    listState = []
-    workers = getAntList(currentState, currentState.whoseTurn, (WORKER,))
-    soldier = getAntList(currentState, currentState.whoseTurn, (SOLDIER,))
-    queen = getAntList(currentState, currentState.whoseTurn, (QUEEN,))
-    enemyQueen = getAntList(currentState, currentState.whoseTurn, (QUEEN,))
-    drone = getAntList(currentState, currentState.whoseTurn, (DRONE,))
-    
-    #put states into a list
-    listState.append(workers)
-    listState.append(soldier)
-    listState.append(queen)
-    listState.append(enemyQueen)
-    listState.append(drone)
+     listState = []
+     workers = getAntList(currentState, currentState.whoseTurn, (WORKER,))
+     soldier = getAntList(currentState, currentState.whoseTurn, (SOLDIER,))
+     queen = getAntList(currentState, currentState.whoseTurn, (QUEEN,))
+     enemyQueen = getAntList(currentState, currentState.whoseTurn, (QUEEN,))
+     drone = getAntList(currentState, currentState.whoseTurn, (DRONE,))
 
-    return listState
+     #put states into a list
+     listState.append(workers)
+     listState.append(soldier)
+     listState.append(queen)
+     listState.append(enemyQueen)
+     listState.append(drone)
 
-
-
+     return listState
