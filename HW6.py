@@ -30,13 +30,11 @@ class AIPlayer(Player):
     ##
     def __init__(self, inputPlayerId):
         super(AIPlayer,self).__init__(inputPlayerId, "HW6")
-        self.stateList = []
-        self.lastState = None
+        self.stateList = dict()
         self.reward = 0
+        self.loadStates('../cruzk20_ndagijim22_weights.txt')
         self.alpha = 0.1 # learning rate
         self.gamma = 0.9 # discount rate
-        self.outFile = "cruzk20_ndagijim22_weights.txt"
-        self.states = self.loadStates('../' + self.outFile)
     
     ##
     #getPlacement
@@ -126,94 +124,59 @@ class AIPlayer(Player):
         return enemyLocations[random.randint(0, len(enemyLocations) - 1)]
 
     ##
-    #refisterwin
+    #registerWin
     #
-    #Description: 
+    # This agent doens't learn
     #
-    #Parameters:
-    #  haswon:declones whether the player has won or not.
-    #
-    #Return: This function doesn't return anything
-    ##
     def registerWin(self, hasWon):
         if (hasWon):
-            self.reward = 1
-        self.getTD(self.previousStates, reward)
-        self.saveState(self.outFile)
-    ##
-    #saveState
-    #
-    #Description: 
-    #
-    #Parameters: 
-    #  path:
-    #
-    #Return: This function doesn't return anything
-    ##
+            self.reward += 1
+        else:
+            self.reward -= 0.01
+        for state in self.stateList:
+            self.getTD(state, reward)
+
+    def loadFile(self, path):
+        f = open(path, "r")
+        text = f.read()
+        lines = text.split('\n')
+        for pair in lines:
+            obj = pair.split(' : ')
+            category = obj[0]
+            value = obj[1]
+            self.stateList[category] = value
+        f.close()
 
     def saveState(self, path):
         f = open(path, "w")
-        f.write("".join("{}: {}, ".format(k, v) for k, v in self.stateList.items()))
+        for x, y in self.stateList.items():
+            f.write(x + " : " + y + "\n")
         f.close()
 
-    ##
-    #loadFile
-    #
-    #Description: 
-    #
-    #Parameters:
-    #  path: 
-    #
-    #Return: This function doesn't return anything
-    ##
-    def loadFile(self, path):
-        f = open(path, "r")
-        self.stateList = {}
-        dictionary = f.read()
-        for entry in dictionary.split(', ')[0:-1]:
-            pair = entry.split(': ')
-            state = pair[0]
-            weight = pair[1]
-            self.states[state] = float(weight)
-        f.close()
 
-##
-#runTD
-#
-#Description: 
-#
-#Parameters:
-#        nestState:
-#        haswon: declones whether the player has won or not.
-#Return: 
-##
 def runTD(self, nextState, hasWon):
-    if (hasWon):
-        self.reward += 1
-    else:
-        self.reward -= 0.01
-
-    # TODO: Fix category and nextStateUtility
+    # TODO: Fix these
     category = None
-    utility = self.stateList.setdefault(category, 0)
-    nextStateUtility = self.states.setdefault(None, 0)
+    u = 0
+    uPrime = 0
 
-    td = utility + self.alpha * (self.reward+(self.gamma * (nextStateUtility - utility)))
+    utility = u + self.alpha * (self.reward + (self.gamma * (uPrime - u)))
+    self.stateList[category] = utility
 
-    self.stateList[category] = td
 
-##
-#categorizeState
-#
-#Description: Put states that identical into the same category.
-#
-#Parameters:
-#   currentState - the state of the game at this point in time.
-#    myInv - inventory of the current player
-#
-#Return: A tuple of states
-##
-def categorizeState(self, currentState, myInv):
+     ##
+     #categorizeState
+     #
+     #Description: Put states that identical into the same category.
+     #
+     #Parameters:
+     #   currentState - the state of the game at this point in time.
+     #    myInv - inventory of the current player
+     #
+     #Return: A tuple of states
+     ##
+def categorizeState(self, currentState):
+     myInv = getCurrPlayerInventory(currentState)
      listState = []
      workers = getAntList(currentState, currentState.whoseTurn, (WORKER,))
      soldier = getAntList(currentState, currentState.whoseTurn, (SOLDIER,))
