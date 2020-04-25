@@ -126,21 +126,46 @@ class AIPlayer(Player):
         return enemyLocations[random.randint(0, len(enemyLocations) - 1)]
 
     ##
-    #registerWin
+    #refisterwin
     #
-    # This agent doens't learn
+    #Description: 
     #
+    #Parameters:
+    #  haswon:declones whether the player has won or not.
+    #
+    #Return: This function doesn't return anything
+    ##
     def registerWin(self, hasWon):
         if (hasWon):
             self.reward = 1
         self.getTD(self.previousStates, reward)
         self.saveState(self.outFile)
+    ##
+    #saveState
+    #
+    #Description: 
+    #
+    #Parameters: 
+    #  path:
+    #
+    #Return: This function doesn't return anything
+    ##
 
     def saveState(self, path):
         f = open(path, "w")
         f.write("".join("{}: {}, ".format(k, v) for k, v in self.stateList.items()))
         f.close()
 
+    ##
+    #loadFile
+    #
+    #Description: 
+    #
+    #Parameters:
+    #  path: 
+    #
+    #Return: This function doesn't return anything
+    ##
     def loadFile(self, path):
         f = open(path, "r")
         self.stateList = {}
@@ -151,8 +176,17 @@ class AIPlayer(Player):
             weight = pair[1]
             self.states[state] = float(weight)
         f.close()
-        
 
+##
+#runTD
+#
+#Description: 
+#
+#Parameters:
+#        nestState:
+#        haswon: declones whether the player has won or not.
+#Return: 
+##
 def runTD(self, nextState, hasWon):
     if (hasWon):
         self.reward += 1
@@ -168,17 +202,17 @@ def runTD(self, nextState, hasWon):
 
     self.stateList[category] = td
 
-     ##
-     #categorizeState
-     #
-     #Description: Put states that identical into the same category.
-     #
-     #Parameters:
-     #   currentState - the state of the game at this point in time.
-     #    myInv - inventory of the current player
-     #
-     #Return: A tuple of states
-     ##
+##
+#categorizeState
+#
+#Description: Put states that identical into the same category.
+#
+#Parameters:
+#   currentState - the state of the game at this point in time.
+#    myInv - inventory of the current player
+#
+#Return: A tuple of states
+##
 def categorizeState(self, currentState, myInv):
      listState = []
      workers = getAntList(currentState, currentState.whoseTurn, (WORKER,))
